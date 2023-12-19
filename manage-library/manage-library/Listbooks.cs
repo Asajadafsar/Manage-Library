@@ -1,0 +1,118 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace manage_library
+{
+    public partial class Listbooks : Form
+    {
+        public Listbooks()
+        {
+            InitializeComponent();
+            ApplyRoundedCorners();
+        }
+        private void ApplyRoundedCorners()
+        {
+            foreach (Control control in Controls)
+            {
+                if (control is Button)
+                {
+                    control.Region = System.Drawing.Region.FromHrgn(CreateRoundRectRgn(0, 0, control.Width, control.Height, 30, 30));
+                }
+            }
+            foreach (Control control in Controls)
+            {
+                if (control is TextBox)
+                {
+                    control.Region = System.Drawing.Region.FromHrgn(CreateRoundRectRgn(0, 0, control.Width, control.Height, 10, 10));
+                }
+            }
+        }
+        [System.Runtime.InteropServices.DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
+        private static extern IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
+        private void back_Click(object sender, EventArgs e)
+        {
+
+            this.Hide();
+            adminpanel adminpanel = new adminpanel();
+            adminpanel.Show();
+        }
+
+        private void Listbooks_Load(object sender, EventArgs e)
+        {
+
+            PopulateUsersDataGridView();
+        }
+        private void PopulateUsersDataGridView()
+        {
+            string booksFolderPath = @"%USERPROFILE%\source\repos\manage-library\manage-library\bin\books";
+            //@"C:\Users\sajad\source\repos\manage-library\manage-library\bin\books";
+            string expandedPath = Environment.ExpandEnvironmentVariables(booksFolderPath);
+            string[] userDirectories = Directory.GetDirectories(expandedPath);
+                //path userDirectories get login
+                foreach (string dir in userDirectories)
+                {
+                    Dictionary<string, string> fileContents = new Dictionary<string, string>
+ {
+     {"RegistrationDate", ""},
+     {"Author", ""},
+     {"Availability", ""},
+     {"BookShelf", ""},
+     {"CodeBook", ""},
+     {"Price", ""},
+     {"Publisher", ""},
+     {"UpdateDate", ""},
+     {"id", ""}
+     
+     //add iteam this read file txt
+ };
+
+                    string[] textFiles = Directory.GetFiles(dir, "*.txt");
+                    //str textFiles get login
+                    foreach (string textFilePath in textFiles)
+                    {
+                        string fileContent = File.ReadAllText(textFilePath);
+                        //read file txt
+                        string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(textFilePath);
+                        //get file name no path .txt
+                        if (fileContents.ContainsKey(fileNameWithoutExtension))
+                        {
+                            //fileContents this mohtaviat file
+                            fileContents[fileNameWithoutExtension] = fileContent;
+                        }
+                    }
+
+                    //add radif 
+                    dataGridViewBooks.Rows.Add(new object[]
+                    {
+     Path.GetFileName(dir),
+     fileContents["RegistrationDate"],
+     //username foolder
+     fileContents["Author"], 
+     //mohtava file txt
+     fileContents["Availability"],
+     fileContents["BookShelf"],
+     fileContents["CodeBook"],
+     fileContents["Price"],
+     fileContents["Publisher"],
+     fileContents["UpdateDate"],
+     fileContents["id"]
+
+                    });
+                }
+            }
+
+        private void dataGridViewBooks_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+    }
+        }
+    
